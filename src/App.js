@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import './css/style.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+class App extends Component {
+
+  sendAddress = () => {
+    console.log('enviou');
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          Header
       </header>
-    </div>
-  );
+
+        <main>
+          <input type="text" name="address" id="address-input" />
+          <input type="button" value="OK" onClick={this.sendAddress.bind(this)}/>
+        </main>
+
+        <footer>
+          copyright@2019
+      </footer>
+      </div>
+    );
+  }
 }
+
 
 export default App;
