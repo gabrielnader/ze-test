@@ -3,6 +3,9 @@ import SearchForm from './SearchForm';
 import Loading from './Loading';
 import SearchError from './SearchError';
 
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+
 class MainContent extends Component{
   constructor() {
     super();
@@ -96,7 +99,7 @@ class MainContent extends Component{
 
     if (this.state.items) {
       const items = this.state.items.data.poc.products.map(function (product) {
-        return <div>{product.title}</div>
+        return <div key={product.id}>{product.title}</div>
       })
 
       return (
