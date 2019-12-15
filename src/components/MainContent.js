@@ -2,15 +2,103 @@ import React, { Component } from 'react';
 import SearchForm from './SearchForm';
 import Loading from './Loading';
 import SearchError from './SearchError';
-
 import httpLink from '../services/apollo';
 import gql from 'graphql-tag';
+import styled from 'styled-components';
+
+const ProductsNav = styled.div`
+  display: flex;
+  margin: 16px;
+  flex-direction: column;
+  text-align: center;
+
+  @media(min-width:360px){
+    justify-content: space-around;
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+  }
+
+  @media (min-width:692px){
+    justify-content: space-between;
+  }
+`
+
+const BackButton = styled.a.attrs(props => ({
+  href: props.href,
+  onClick: props.onClick
+}))`
+  color: black;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid gray;
+  background: #ffc500;
+  text-decoration: none;
+  border-radius: 24px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  @media(min-width:360px){
+    margin-bottom: 0;
+  }
+`
+
+const Filter = styled.select`
+  border-radius: 24px;
+  background: white;
+  padding: 6px;
+  font-size: 14px;
+  :focus{
+    outline: none;
+  }
+`
+
+const ListItem = styled.li.attrs(props => ({
+  key: props.key
+}))`
+  width: 220px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: .5px solid lightgray;
+  padding: 12px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  border-radius: 24px;
+`
+
+const ProductsList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 36px;
+  padding: 0 16px;
+  justify-content: center;
+  @media (min-width:472px){
+    justify-content: space-around;
+  }
+  @media (min-width:692px){
+    justify-content: space-between;
+  }
+  `
+
+const ProductImage = styled.img.attrs(props => ({
+  src: props.src,
+  alt: props.alt
+}))`
+  width: 200px;
+  height: auto;
+`
+const SeparateLine = styled.hr`
+  width: 100%;
+`
+  
 
 class MainContent extends Component {
   constructor() {
     super();
     this.getLatLong = this.getLatLong.bind(this);
     this.setAddress = this.setAddress.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.state = {
       address: 'Rua Américo Brasiliense, São Paulo',
@@ -19,12 +107,18 @@ class MainContent extends Component {
       items: null,
       categories: '',
       pocId: '',
-      pocStatus: ''
+      pocStatus: '',
+      value: 'choose'
     };
   }
 
   setAddress(event) {
     this.setState({ address: event.target.value });
+  }
+
+  handleSelectChange(event) {
+    this.setState({ value: event.target.value });
+    this.fillProducts(event);
   }
 
   tryAgain = (event) => {
@@ -36,11 +130,22 @@ class MainContent extends Component {
       items: null,
       categories: '',
       pocId: '',
-      pocStatus: ''
+      pocStatus: '',
+      value: 'choose'
     })
   }
 
-  fillProducts = (pocId, pocStatus, categoryId=null) => {
+  fillProducts = (event) => {
+    this.setState({
+      loading: true,
+    })
+
+    let categoryId = null
+
+    if (event) {
+      categoryId = event.target.value;
+    }
+
     const productsQuery = gql`
                 query poc($id: ID!, $categoryId: Int, $search: String){
                   poc(id: $id) {
@@ -58,7 +163,7 @@ class MainContent extends Component {
                   }
                 }`;
 
-    if (pocStatus !== 'AVAILABLE') {
+    if (this.state.pocStatus !== 'AVAILABLE') {
       this.setState({
         loading: false,
         error: "Sem estoque para este endereço atualmente. Tente novamente mais tarde."
@@ -68,10 +173,9 @@ class MainContent extends Component {
 
     httpLink.query({
       query: productsQuery,
-      variables: { id: pocId, search: '', categoryId: categoryId }
+      variables: { id: this.state.pocId, search: '', categoryId: categoryId }
     }).then(result => {
       this.setState({
-        loading: false,
         items: result
       })
 
@@ -87,7 +191,8 @@ class MainContent extends Component {
         query: categoryQuery
       }).then(result => {
         this.setState({
-          categories: result.data.allCategory
+          categories: result.data.allCategory,
+          loading: false
         })
       })
     })
@@ -119,10 +224,12 @@ class MainContent extends Component {
           return
         }
 
-        const pocId = result.data.pocSearch[0].id;
-        const pocStatus = result.data.pocSearch[0].status;
+        this.setState({
+          pocId: result.data.pocSearch[0].id,
+          pocStatus: result.data.pocSearch[0].status
+        })
 
-        this.fillProducts(pocId, pocStatus);
+        this.fillProducts();
       })
   }
 
@@ -167,30 +274,33 @@ class MainContent extends Component {
     if (this.state.items && this.state.categories) {
       const items = this.state.items.data.poc.products.map(function (product) {
         return (
-          <li key={product.id} style={{ listStyle: 'none', width: '120px' }}>
-            <img src={product.images[0].url} alt={product.title} width="50" />
-            <hr />
+          <ListItem key={product.id}>
+            <ProductImage src={product.images[0].url} alt={product.title} />
+            <SeparateLine />
             <p>{product.title}</p>
             <label>R${product.productVariants[0].price}</label>
-          </li>
+          </ListItem>
         )
       })
 
       const categories = this.state.categories.map(function (category) {
         return (
-          <option key={category.id}>{category.title}</option>
+          <option key={category.id} value={category.id}>{category.title}</option>
         )
       })
 
       return (
         <div>
-          <div>
-            <select onChange={this.fillProducts} >
-              <option disabled>Selecione uma categoria</option>
+          <ProductsNav>
+            <BackButton href="/" onClick={this.tryAgain}> &#8592; Mudar endereço</BackButton>
+            <Filter value={this.state.value} onChange={this.handleSelectChange} >
+              <option value='choose' disabled>Selecione uma categoria</option>
               {categories}
-            </select>
-          </div>
-          {items}
+            </Filter>
+          </ProductsNav>
+          <ProductsList>
+            {items}
+          </ProductsList>
         </div>
       );
     }
@@ -198,7 +308,7 @@ class MainContent extends Component {
     if (this.state.error) {
       return (
         <div>
-          <a href="/" onClick={this.tryAgain}>Voltar</a>
+          <BackButton href="/" onClick={this.tryAgain}>Voltar</BackButton>
           <SearchError error={this.state.error}></SearchError>
         </div>
       )
