@@ -91,7 +91,10 @@ const ProductImage = styled.img.attrs(props => ({
 const SeparateLine = styled.hr`
   width: 100%;
 `
-  
+ 
+const ErrorContent = styled.div`
+  margin: 16px;
+`
 
 class MainContent extends Component {
   constructor() {
@@ -166,7 +169,7 @@ class MainContent extends Component {
     if (this.state.pocStatus !== 'AVAILABLE') {
       this.setState({
         loading: false,
-        error: "Sem estoque para este endereço atualmente. Tente novamente mais tarde."
+        error: "Putz, está fora da nossa área..."
       })
       return
     }
@@ -219,7 +222,7 @@ class MainContent extends Component {
         if (result.data.pocSearch.length === 0) {
           this.setState({
             loading: false,
-            error: "Endereço não encontrado"
+            error: "Putz, está fora da nossa área..."
           })
           return
         }
@@ -247,7 +250,7 @@ class MainContent extends Component {
           if (result.status === "ZERO_RESULTS") {
             this.setState({
               loading: false,
-              error: "Endereço não encontrado"
+              error: "Putz, está fora da nossa área..."
             })
             return
           }
@@ -257,7 +260,7 @@ class MainContent extends Component {
         (error) => {
           this.setState({
             loading: false,
-            error: "Tente novamente"
+            error: "Putz, está fora da nossa área..."
           });
         }
       );
@@ -307,10 +310,10 @@ class MainContent extends Component {
 
     if (this.state.error) {
       return (
-        <div>
-          <BackButton href="/" onClick={this.tryAgain}>Voltar</BackButton>
+        <ErrorContent>
+          <BackButton href="/" onClick={this.tryAgain}> &#8592; Voltar</BackButton>
           <SearchError error={this.state.error}></SearchError>
-        </div>
+        </ErrorContent>
       )
     }
 
