@@ -104,7 +104,7 @@ class MainContent extends Component {
     this.handleSelectChange = this.handleSelectChange.bind(this);
 
     this.state = {
-      address: 'Rua Américo Brasiliense, São Paulo',
+      address: '',
       error: null,
       loading: false,
       items: null,
@@ -127,7 +127,7 @@ class MainContent extends Component {
   tryAgain = (event) => {
     event.preventDefault();
     this.setState({
-      address: 'Rua Américo Brasiliense, São Paulo',
+      address: '',
       error: null,
       loading: false,
       items: null,
@@ -246,7 +246,6 @@ class MainContent extends Component {
       .then(res => res.json())
       .then(
         (result) => {
-
           if (result.status === "ZERO_RESULTS") {
             this.setState({
               loading: false,
@@ -254,10 +253,10 @@ class MainContent extends Component {
             })
             return
           }
-
           this.getPocId(result)
         },
         (error) => {
+          console.log(error);
           this.setState({
             loading: false,
             error: "Putz, está fora da nossa área..."
@@ -281,7 +280,7 @@ class MainContent extends Component {
             <ProductImage src={product.images[0].url} alt={product.title} />
             <SeparateLine />
             <p>{product.title}</p>
-            <label>R${product.productVariants[0].price}</label>
+            <label>R${product.productVariants[0].price.toFixed(2).replace(".", ",")}</label>
           </ListItem>
         )
       })

@@ -4,12 +4,8 @@ import MainContent from './components/MainContent';
 import Footer from './components/Footer';
 import './css/style.css';
 import styled from 'styled-components';
-
 import { ApolloProvider } from 'react-apollo';
-
 import apolloClient from './services/apollo';
-
-require('dotenv').config();
 
 const AppContent = styled.div`
   font-family: sans-serif;
