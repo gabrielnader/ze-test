@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import SearchForm from './SearchForm';
 import Loading from './Loading';
 import SearchError from './SearchError';
+import AddToCart from './AddToCart';
 import httpLink from '../services/apollo';
 import gql from 'graphql-tag';
 import styled from 'styled-components';
@@ -169,7 +170,7 @@ class MainContent extends Component {
     if (this.state.pocStatus !== 'AVAILABLE') {
       this.setState({
         loading: false,
-        error: "Putz, está fora da nossa área..."
+        error: "Putz, está fora da nossa área... =("
       })
       return
     }
@@ -222,7 +223,7 @@ class MainContent extends Component {
         if (result.data.pocSearch.length === 0) {
           this.setState({
             loading: false,
-            error: "Putz, está fora da nossa área..."
+            error: "Putz, está fora da nossa área... =("
           })
           return
         }
@@ -249,7 +250,7 @@ class MainContent extends Component {
           if (result.status === "ZERO_RESULTS") {
             this.setState({
               loading: false,
-              error: "Putz, está fora da nossa área..."
+              error: "Endereço não encontrado, tente novamente."
             })
             return
           }
@@ -259,7 +260,7 @@ class MainContent extends Component {
           console.log(error);
           this.setState({
             loading: false,
-            error: "Putz, está fora da nossa área..."
+            error: "Endereço não encontrado, tente novamente."
           });
         }
       );
@@ -281,6 +282,7 @@ class MainContent extends Component {
             <SeparateLine />
             <p>{product.title}</p>
             <label>R${product.productVariants[0].price.toFixed(2).replace(".", ",")}</label>
+            <AddToCart></AddToCart>
           </ListItem>
         )
       })
@@ -295,7 +297,7 @@ class MainContent extends Component {
         <div>
           <ProductsNav>
             <BackButton href="/" onClick={this.tryAgain}> &#8592; Mudar endereço</BackButton>
-            <Filter value={this.state.value} onChange={this.handleSelectChange} >
+            <Filter value={this.state.value} onChange={this.handleSelectChange}>
               <option value='choose' disabled>Selecione uma categoria</option>
               {categories}
             </Filter>
@@ -317,7 +319,7 @@ class MainContent extends Component {
     }
 
     return (
-      <SearchForm address={this.state.address} onSubmit={this.getLatLong} onChange={this.setAddress} ></SearchForm>
+      <SearchForm address={this.state.address} onSubmit={this.getLatLong} onChange={this.setAddress}></SearchForm>
     );
   }
 }

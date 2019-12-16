@@ -7,14 +7,20 @@ const LoadingImg = styled.img.attrs(props => ({
   alt: props.alt
 }))`
   width: 100%;
+  max-width: 1024px;
+`
+
+const LoadingContent = styled.div`
+  text-align: center;
+  background: white;
 `
 
 class Loading extends Component{
   render(){
     return (
-      <div>
+      <LoadingContent>
         <LoadingImg src={loadingImage} alt="Carregando produtos" ></LoadingImg>
-      </div>
+      </LoadingContent>
     );
   }
 }
